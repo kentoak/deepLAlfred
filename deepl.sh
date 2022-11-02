@@ -142,40 +142,45 @@ else
         numForSubtitle=83
         cnt2="$(echo "$myQuery" | wc -m | bc)"
         startForSubtitle=0
-        while [ 1 ]
-        do
-          cnt2=`expr $cnt2 - $numForSubtitle`
-          if [[ $cnt2 -gt 0 ]]; then
-            endend=$numForSubtitle
-            for ((i=0; i < $numForSubtitle; i++)); do
-              if [[ $i -eq 0 ]]; then
-                endbreak=${myQuery:$((startForSubtitle+endend-1)):1}
-                if [[ $endbreak == " " ]]; then
-                  break
+        if [[ $cnt2 -gt $numForSubtitle ]]; then 
+          while [ 1 ]
+          do
+            cnt2=`expr $cnt2 - $numForSubtitle`
+            if [[ $cnt2 -gt 0 ]]; then
+              endend=$numForSubtitle
+              for ((i=0; i < $numForSubtitle; i++)); do
+                if [[ $i -eq 0 ]]; then
+                  endbreak=${myQuery:$((startForSubtitle+endend-1)):1}
+                  if [[ $endbreak == " " ]]; then
+                    break
+                  fi
+                else
+                  endbreak=${myQuery:$((startForSubtitle+endend-1)):1}
+                  if [[ $endbreak == " " ]]; then
+                    break
+                  fi
+                  endend=$((endend-1))
                 fi
-              else
-                endbreak=${myQuery:$((startForSubtitle+endend-1)):1}
-                if [[ $endbreak == " " ]]; then
-                  break
-                fi
-                endend=$((endend-1))
-              fi
-            done
-            nowForSubtitle=${myQuery:$((startForSubtitle)):$((endend))}
-          fi
-          if [[ $cnt2 -gt 0 ]]; then 
-            a='{"title":"'$sts'","arg":"'$sts'","subtitle":"'$nowForSubtitle'"},'
-          else
-            a='{"title":"","arg":"","subtitle":"'${myQuery:$((startForSubtitle))}'"}'
-          fi
-          startForSubtitle=`expr $startForSubtitle + $endend`
-          MM+=($a)
-          if [[ $cnt2 -lt 0 ]]; then
-            break
-          fi
-        done
-        mo=${MM[@]}
-        echo '{"items":['$mo']}' | "$PARSER" .
+              done
+              nowForSubtitle=${myQuery:$((startForSubtitle)):$((endend))}
+            fi
+            if [[ $cnt2 -gt 0 ]]; then 
+              a='{"title":"'$sts'","arg":"'$sts'","subtitle":"'$nowForSubtitle'"},'
+            else
+              a='{"title":"","arg":"","subtitle":"'${myQuery:$((startForSubtitle))}'"}'
+            fi
+            startForSubtitle=`expr $startForSubtitle + $endend`
+            MM+=($a)
+            if [[ $cnt2 -lt 0 ]]; then
+              break
+            fi
+          done
+          mo=${MM[@]}
+          echo '{"items":['$mo']}' | "$PARSER" .
+        else
+          a='{"title":"'$sts'","arg":"'$sts1'","subtitle":"'$myQuery'"}'
+          echo '{"items":['$a']}' | "$PARSER" .
+        fi
       fi
     else
       numForTitle=83
