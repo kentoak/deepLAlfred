@@ -1,3 +1,3 @@
 # DeepLWithNotion
 
-<a href='https://github.com/kentoak/deepLAlfred/releases/tag/version1.1'>⤓ Download Workflow</a>
+<a href='https://github.com/kentoak/deepLAlfred/releases/download/version1.1/DeepLWithNotion.alfredworkflow'>⤓ Download Workflow</a>
