@@ -12,7 +12,7 @@ import datetime
 
 notion_api_key = os.environ["NOTION_API_KEY"] or ""
 notion_database_url = os.environ["NOTION_DATABASE_URL"] or ""
-deepl_auth_key = os.environ["DEEPL_ACCESS_TOKEN"] or ""
+deepl_auth_key = os.environ["DEEPL_AUTH_KEY"] or ""
 
 def main(spell):
     if onlyAlphabet(spell):
