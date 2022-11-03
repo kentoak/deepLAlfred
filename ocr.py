@@ -8,7 +8,7 @@ import pyocr
 import requests
 import random
 
-deepl_auth_key = os.environ["DEEPL_ACCESS_TOKEN"] or ""
+deepl_auth_key = os.environ["DEEPL_AUTH_KEY"] or ""
 screenshot_path = os.environ["SCREENSHOT_PATH"] or ""
 
 tools = pyocr.get_available_tools()
@@ -44,28 +44,94 @@ resultText.replace('\\"','\"')
 resultText.replace(" ","")
 resultText.replace('．','。').replace('，','、')
 
-cnt = len(resultText)
+sts=resultText
+cnt = len(sts)
+CNT=cnt
 start=0
-end=36
 tao=[]
-u=-1
 subtex=text
 subtex=subtex.replace("\\'","\'")
-while True:
-    cnt-=36
-    u+=1
-    if cnt > 0:
-        now = resultText[start:start+end]
-    if start == 0:
-        a={"title":now,"arg":resultText,"subtitle":subtex[100*u:100*(u+1)]}
-    else:
+cnt2=len(subtex)
+numForTitle=40
+if cnt > numForTitle+1:
+    start=0
+    tmpStart=start
+    startForSubtitle=0
+    MM=[]
+    numForSubtitle=83
+    while True:
+        numForTitle=40
+        cnt-=numForTitle
+        cnt2-=numForSubtitle
         if cnt > 0:
-            a={"title":now,"arg":now,"subtitle":subtex[100*u:100*(u+1)]}
+            now = sts[start:start+numForTitle]
         else:
-            a={"title":resultText[start:],"arg":resultText[start:],"subtitle":subtex[100*u:100*(u+1)]}
-    start+=36
-    tao.append(a)
-    if cnt < 0:
-        break
+            now = sts[start:]
+        if cnt2>0:
+            endend=numForSubtitle
+            for i in range(numForSubtitle):
+                if i==0:
+                    endbreak=subtex[startForSubtitle+endend-1:startForSubtitle+endend]
+                    if endbreak == " ":
+                        break
+                else:
+                    endbreak=subtex[startForSubtitle+endend-1:startForSubtitle+endend]
+                    if endbreak==" ":
+                        break
+                    endend-=1
+            nowForSubtitle=subtex[startForSubtitle:startForSubtitle+endend]
+            #print("nowForSubtitle is", nowForSubtitle)
+        if start == 0:
+            a={"title":now,"arg":sts,"subtitle":nowForSubtitle}
+        else:
+            if cnt>0:
+                a={"title":now,"arg":now,"subtitle":nowForSubtitle}
+            else:
+                if cnt2>0:
+                    a={"title":now,"arg":now,"subtitle":nowForSubtitle}
+                else:
+                    if tmpStart == start:
+                        a={"title":"","arg":"","subtitle":subtex[startForSubtitle:]}
+                    else:
+                        a={"title":now,"arg":now,"subtitle":subtex[startForSubtitle:]}
+        startForSubtitle+=endend
+        tmpStart=start
+        if tmpStart+numForTitle<CNT:
+            start=tmpStart+numForTitle
+        else:
+            start=tmpStart
+        tao.append(a)
+        if cnt < 0 and cnt2 < 0:
+            break
+else:
+    numForSubtitle=83
+    startForSubtitle=0
+    if cnt2>numForSubtitle:
+        while True:
+            cnt2 -= numForSubtitle
+            if cnt2>0:
+                endend=numForSubtitle
+                for i in range(numForSubtitle):
+                    if i==0:
+                        endbreak=subtex[startForSubtitle+endend-1:startForSubtitle+endend]
+                        if endbreak == " ":
+                            break
+                    else:
+                        endbreak=subtex[startForSubtitle+endend-1:startForSubtitle+endend]
+                        if endbreak==" ":
+                            break
+                        endend-=1
+                nowForSubtitle=subtex[startForSubtitle:startForSubtitle+endend]
+            if cnt2>0:
+                a={"title":sts,"arg":sts,"subtitle":nowForSubtitle}
+            else:
+                a={"title":"","arg":"","subtitle":subtex[startForSubtitle:]}
+            startForSubtitle+=endend
+            tao.append(a)
+            if cnt2 < 0:
+                break
 
 sys.stdout.write(json.dumps({'items': tao}, ensure_ascii=False))
+
+#os.remove(latest_file) #完全削除
+#shutil.move(latest_file,'/Users/kt/.Trash/') #ごみ箱へ移動する場合
