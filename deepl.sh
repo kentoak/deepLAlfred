@@ -74,12 +74,10 @@ else
         start=0
         startForSubtitle=0
         MM=()
-        u=-1
         numForSubtitle=83
         while [ 1 ]
         do
           numForTitle=40
-          u=$((u+1))
           cnt1=`expr $cnt1 - $numForTitle`
           cnt2=`expr $cnt2 - $numForSubtitle`
           if [[ $cnt1 -gt 0 ]]; then
@@ -110,8 +108,12 @@ else
           if [[ $start == 0 ]]; then 
             a='{"title":"'$now'","arg":"'$sts1'","subtitle":"'$nowForSubtitle'"},'
           else 
-            if [[ $cnt1 -gt 0 ]]; then 
-              a='{"title":"'$now'","arg":"'$now1'","subtitle":"'$nowForSubtitle'"},'
+            if [[ $cnt1 -gt 0 ]]; then
+              if [[ $cnt2 -gt 0 ]]; then
+                a='{"title":"'$now'","arg":"'$now1'","subtitle":"'$nowForSubtitle'"},'
+              else
+                a='{"title":"'$now'","arg":"'$now1'","subtitle":"'${myQuery:$((startForSubtitle))}'"},'
+              fi
             else
               if [[ $cnt2 -gt 0 ]]; then 
                 a='{"title":"'$now'","arg":"'$now1'","subtitle":"'$nowForSubtitle'"},'

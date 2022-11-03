@@ -76,16 +76,18 @@ if cnt > numForTitle+1:
                         break
                 else:
                     endbreak=subtex[startForSubtitle+endend-1:startForSubtitle+endend]
-                    if endbreak==" ":
+                    if endbreak == " ":
                         break
                     endend-=1
             nowForSubtitle=subtex[startForSubtitle:startForSubtitle+endend]
-            #print("nowForSubtitle is", nowForSubtitle)
         if start == 0:
             a={"title":now,"arg":sts,"subtitle":nowForSubtitle}
         else:
             if cnt>0:
-                a={"title":now,"arg":now,"subtitle":nowForSubtitle}
+                if cnt2>0:
+                    a={"title":now,"arg":now,"subtitle":nowForSubtitle}
+                else:
+                    a={"title":now,"arg":now,"subtitle":subtex[startForSubtitle:]}
             else:
                 if cnt2>0:
                     a={"title":now,"arg":now,"subtitle":nowForSubtitle}
