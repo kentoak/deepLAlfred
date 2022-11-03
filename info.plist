@@ -179,7 +179,7 @@
 	<key>description</key>
 	<string>Translation using deepl.com, 英辞郎, longman.</string>
 	<key>disabled</key>
-	<false/>
+	<true/>
 	<key>name</key>
 	<string>DeepLWithNotion</string>
 	<key>objects</key>
@@ -876,6 +876,8 @@
 		<string>secret_fAPSDxpbMjRETCMkT2JauO4DWFjXmuWtBIV6340qgIR</string>
 		<key>NOTION_DATABASE_URL</key>
 		<string>https://www.notion.so/5f25c4bd2a194d9dbb8eecb2c46c7afe?v=58e8079bf5e0409b80e1795451086846</string>
+		<key>OCR_PATH</key>
+		<string>/usr/local/bin/tesseract</string>
 		<key>SCREENSHOT_PATH</key>
 		<string>/Users/kt/sccapture/*</string>
 	</dict>

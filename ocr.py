@@ -11,6 +11,7 @@ import random
 deepl_auth_key = os.environ["DEEPL_AUTH_KEY"] or ""
 screenshot_path = os.environ["SCREENSHOT_PATH"] or ""
 
+pyocr.tesseract.TESSERACT_CMD = os.environ["OCR_PATH"] or r'/usr/local/bin/tesseract'
 tools = pyocr.get_available_tools()
 tool = tools[0]
 
@@ -132,6 +133,9 @@ else:
             tao.append(a)
             if cnt2 < 0:
                 break
+    else:
+        a={"title":sts,"arg":sts,"subtitle":subtex}
+        tao.append(a)
 
 sys.stdout.write(json.dumps({'items': tao}, ensure_ascii=False))
 
