@@ -75,6 +75,7 @@ else
         startForSubtitle=0
         MM=()
         numForSubtitle=83
+        subtitleFinish=false
         while [ 1 ]
         do
           numForTitle=40
@@ -106,7 +107,12 @@ else
             nowForSubtitle=${myQuery:$((startForSubtitle)):$((endend))}
           fi
           if [[ $start == 0 ]]; then 
-            a='{"title":"'$now'","arg":"'$sts1'","subtitle":"'$nowForSubtitle'"},'
+            if [[ $cnt2 -gt 0 ]]; then
+              a='{"title":"'$now'","arg":"'$sts1'","subtitle":"'$nowForSubtitle'"},'
+            else
+              a='{"title":"'$now'","arg":"'$sts1'","subtitle":"'${myQuery:$((startForSubtitle))}'"},'
+              subtitleFinish=true
+            fi
           else 
             if [[ $cnt1 -gt 0 ]]; then
               if [[ $cnt2 -gt 0 ]]; then
@@ -121,7 +127,11 @@ else
                 if [[ $tmpStart == $start ]]; then 
                   a='{"title":"","arg":"","subtitle":"'${myQuery:$((startForSubtitle))}'"}'
                 else
-                  a='{"title":"'$now'","arg":"'$now1'","subtitle":"'${myQuery:$((startForSubtitle))}'"}'
+                  if "${subtitleFinish}"; then
+                    a='{"title":"'$now'","arg":"'$now1'","subtitle":""}'
+                  else
+                    a='{"title":"'$now'","arg":"'$now1'","subtitle":"'${myQuery:$((startForSubtitle))}'"}'
+                  fi
                 fi
               fi
             fi
