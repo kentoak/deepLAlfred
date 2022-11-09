@@ -44,8 +44,9 @@ fi
 query="$1"
 query="$(echo "$query" | sed 's/\"/\\\"/g')" 
 query="$(echo "$query" | sed "s/'/\\\'/g")" 
-query="$(echo "$query" | sed "s/&/%26/g")" 
-query="$(echo "$query" | sed "s/%/%25/g")"
+query="$(echo "$query" | sed "s/& /%26%20/g")" 
+query="$(echo "$query" | sed "s/% /%25%20/g")"
+query="$(echo "$query" | sed "s/¼/=/g")"
 query="$(echo $query | sed -e "s/[\r\n]\+//g")"
 query="$(echo "$query" | iconv -f utf-8-mac -t utf-8 | xargs)"           
 
@@ -64,6 +65,7 @@ else
   myQuery=$query 
   myQuery="$(echo "$myQuery" | sed 's/%26/\&/g')" 
   myQuery="$(echo "$myQuery" | sed 's/%25/\%/g')" 
+  myQuery="$(echo "$myQuery" | sed 's/%20/ /g')"
   myQuery="$(echo "$myQuery" | sed 's/\"/\\\"/g')"
   cnt2="$(echo "$myQuery" | wc -m | bc)"
   if [[ ${query:0:20} != ${sts:0:20} ]]; then
@@ -248,5 +250,8 @@ else
         echo '{"items":['$a']}' | "$PARSER" .
       fi
     fi
+  #else
+    #a='{"title":"'$sts'","arg":"'$sts1'","subtitle":"'$myQuery'"}'
+    #echo '{"items":['$a']}' | "$PARSER" .
   fi
 fi
