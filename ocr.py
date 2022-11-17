@@ -60,6 +60,8 @@ if cnt > numForTitle+1:
     startForSubtitle=0
     MM=[]
     numForSubtitle=83
+    endend=0
+    subtitleFinish=False
     while True:
         numForTitle=40
         cnt-=numForTitle
@@ -82,7 +84,11 @@ if cnt > numForTitle+1:
                     endend-=1
             nowForSubtitle=subtex[startForSubtitle:startForSubtitle+endend]
         if start == 0:
-            a={"title":now,"arg":sts,"subtitle":nowForSubtitle}
+            if cnt2>0:
+                a={"title":now,"arg":sts,"subtitle":nowForSubtitle}
+            else:
+                a={"title":now,"arg":sts,"subtitle":subtex[startForSubtitle:]}
+                subtitleFinish=True
         else:
             if cnt>0:
                 if cnt2>0:
@@ -96,7 +102,10 @@ if cnt > numForTitle+1:
                     if tmpStart == start:
                         a={"title":"","arg":"","subtitle":subtex[startForSubtitle:]}
                     else:
-                        a={"title":now,"arg":now,"subtitle":subtex[startForSubtitle:]}
+                        if subtitleFinish:
+                            a={"title":now,"arg":now,"subtitle":""}
+                        else:
+                            a={"title":now,"arg":now,"subtitle":subtex[startForSubtitle:]}
         startForSubtitle+=endend
         tmpStart=start
         if tmpStart+numForTitle<CNT:
