@@ -42,11 +42,15 @@ if [ -z "$1" ]; then
 fi
 
 query="$1"
-query="$(echo "$query" | sed 's/\"/\\\"/g')" 
-query="$(echo "$query" | sed "s/'/\\\'/g")" 
+#query="$(echo "$query" | sed 's/\"/\\\"/g')" 
+query="$(echo "$query" | gsed -E 's/\. ([a-z])/\. \U\1/g')"
+query="$(echo "$query" | sed "s/\"/'/g")" 
+query="$(echo $query | sed -e "s/[\r\n]\+/ /g")" #改行を半角スペースに
+#query="$(echo "$query" | sed "s/'/\\\'/g")" 
 query="$(echo "$query" | sed "s/& /%26%20/g")" 
 query="$(echo "$query" | sed "s/% /%25%20/g")"
 query="$(echo "$query" | sed "s/¼/=/g")"
+query="$(echo "$query" | sed "s/´/'/g")"
 query="$(echo $query | sed -e "s/[\r\n]\+//g")"
 query="$(echo "$query" | iconv -f utf-8-mac -t utf-8 | xargs)"           
 
@@ -77,12 +81,12 @@ else
         startForSubtitle=0
         MM=()
         numForSubtitle=83
+        numForTitle=40
         subtitleFinish=false
+        cnt1LastFlag=false
         while [ 1 ]
         do
-          numForTitle=40
           cnt1=`expr $cnt1 - $numForTitle`
-          cnt2=`expr $cnt2 - $numForSubtitle`
           if [[ $cnt1 -gt 0 ]]; then
             now=${sts:$((start)):$((numForTitle))} 
             now1=${sts1:$((start)):$((numForTitle))}
@@ -90,7 +94,8 @@ else
             now=${sts:$((start))}
             now1=${sts1:$((start))}
           fi
-          if [[ $cnt2 -gt 0 ]]; then
+          cntForEnd="$(echo "${myQuery:$((startForSubtitle))}" | wc -m | bc)"
+          if [[ $cntForEnd -gt $numForSubtitle ]]; then
             endend=$numForSubtitle
             for ((i=0; i < $numForSubtitle; i++)); do
               if [[ $i -eq 0 ]]; then
@@ -108,6 +113,7 @@ else
             done
             nowForSubtitle=${myQuery:$((startForSubtitle)):$((endend))}
           fi
+          cnt2=`expr $cnt2 - $endend`
           if [[ $start == 0 ]]; then 
             if [[ $cnt2 -gt 0 ]]; then
               a='{"title":"'$now'","arg":"'$sts1'","subtitle":"'$nowForSubtitle'"},'
@@ -123,8 +129,13 @@ else
                 a='{"title":"'$now'","arg":"'$now1'","subtitle":"'${myQuery:$((startForSubtitle))}'"},'
               fi
             else
-              if [[ $cnt2 -gt 0 ]]; then 
-                a='{"title":"'$now'","arg":"'$now1'","subtitle":"'$nowForSubtitle'"},'
+              if [[ $cnt2 -gt 0 ]]; then
+                if [[ ${cnt1LastFlag} == false ]]; then
+                  a='{"title":"'$now'","arg":"'$now1'","subtitle":"'$nowForSubtitle'"},'
+                  cnt1LastFlag=true
+                else
+                  a='{"title":"","arg":"","subtitle":"'$nowForSubtitle'"},'
+                fi
               else
                 if [[ $tmpStart == $start ]]; then 
                   a='{"title":"","arg":"","subtitle":"'${myQuery:$((startForSubtitle))}'"}'
