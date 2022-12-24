@@ -159,11 +159,7 @@ def format(word, onlyAlphabetFlag, out):
                     ken = i.split("・")
                 else:
                     ken = [i]
-                if len(ken) > 1:
-                    for idx, k in enumerate(ken):
-                        meaningList.append(ken[0])
-                else:
-                    meaningList.append(ken[0])
+                meaningList.append(ken[0])
         else:
             meaningList.append(deepLMeaning(word, onlyAlphabetFlag))
 
