@@ -7,7 +7,7 @@ import re
 
 
 def main(spell):
-    if onlyAlphabet(spell):
+    if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
         spell = spell.lower()
         url = "https://www.ldoceonline.com/jp/dictionary/english-japanese/" + spell
     else:

@@ -8,7 +8,7 @@ import re
 
 def main(spell):
     spell=spell.replace(" ","%20")
-    if onlyAlphabet(spell):
+    if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
         spell = spell.lower()
         url = "https://eow.alc.co.jp/search?q=" + spell
     else:
@@ -19,7 +19,6 @@ def main(spell):
     source = requests.get(url, headers=headers)
     data = BeautifulSoup(source.content, "html.parser")
     explanation_list = []
-
     if data.select("#resultsList"):
         if data.select("#resultsList")[0].find("ul"):
             if data.select("#resultsList")[0].find("ul").find("li").find_all("div"):

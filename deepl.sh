@@ -33,7 +33,7 @@ set -- "${POSITIONAL[@]:-}"
 
 
 if [ -z "$1" ]; then
-  echo "Home made DeepL CLI (${VERSION}; https://github.com/AlexanderWillner/deepl-alfred-workflow2)"
+  echo "Home made DeepL CLI (${VERSION}; https://github.com/kentoak/deepLAlfred)"
   echo ""
   echo "SYNTAX : $0 [-l language] <query>" >&2
   echo "Example: $0 -l DE \"This is just an example.\""
@@ -261,8 +261,5 @@ else
         echo '{"items":['$a']}' | "$PARSER" .
       fi
     fi
-  #else
-    #a='{"title":"'$sts'","arg":"'$sts1'","subtitle":"'$myQuery'"}'
-    #echo '{"items":['$a']}' | "$PARSER" .
   fi
 fi
