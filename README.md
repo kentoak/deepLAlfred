@@ -94,17 +94,20 @@ Open as pageからDatabaseのリンクを開く。
 `SCREENSHOT_PATH`の他に、tesseractのPathを通すことも必要。pyocrを使うには、tesseractをインストールして、そのpathを通す必要がある。デフォルトでは`/usr/local/bin/tesseract`にしている。そうでなければ[x]のところに書き直し。必要に応じてPathを通すか、Workflowの中にコマンドをぶち込む。
 
 ## Distribution
-[Notion Database 参考配布](
+* [Notion Database 参考配布](
 https://sedate-albatross-de7.notion.site/dd45f9f9f9854528825e05ad9a7977cf)
 `Word`, `Meaning1~7`, `Date`, `Link`のPropertyがある。使うときはSortでDateの降順にすると最新のものが上に来る。
+ 
+ ![image](https://user-images.githubusercontent.com/43945931/209460636-18168e6f-664c-4040-b897-df2d064e2217.png)
+
 
 * [Subtitleを見やすくしたAppearance参考配布](https://www.alfredapp.com/extras/theme/hwZohFvH5J/)
 
-デフォルトはこれ。
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/316390/647d2a42-3d08-57f0-927f-c8aa38c645c1.png)
+   デフォルトはこれ。
+   ![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/316390/647d2a42-3d08-57f0-927f-c8aa38c645c1.png)
 
-このAppearanceは、以下のようにSubtitleの文字をデフォルトより大きくして、よく見えるようにしてある。
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/316390/8529a5ff-f2f9-b7af-d4dc-fbc032c0098e.png)
+   このAppearanceは、以下のようにSubtitleの文字をデフォルトより大きくして、よく見えるようにしてある。
+   ![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/316390/8529a5ff-f2f9-b7af-d4dc-fbc032c0098e.png)
 
 
 # こちらも合わせて御覧ください
