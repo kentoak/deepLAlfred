@@ -23,11 +23,9 @@ DeepLで翻訳、ロングマン英和辞典と英辞郎から単語検索し、
 
 
 ### 英辞郎英和・和英辞典の単語検索
-ロングマン英和辞典では、"come up with"などの英熟語は載っていない。そこで、英熟語が豊富に載っている英辞郎も使えるようにした。例文も取得できる。
+ロングマン英和辞典では、"rack up"などのニッチな英熟語は載っていない。そこで、英熟語が豊富に載っている英辞郎も使えるようにした。例文も取得できる。
 
-![image](https://user-images.githubusercontent.com/43945931/209459879-e95dafe5-1653-4ff5-9ab6-c850d558be75.png)
-![image](https://user-images.githubusercontent.com/43945931/209459883-2aa654fa-0b96-4609-9ce6-96d4808ecec9.png)
-
+![image](https://user-images.githubusercontent.com/43945931/209463173-bdca74b4-cee2-486f-884d-4f819382eebd.png)
 
 
 ### スクショ画像をOCRして英和で翻訳
