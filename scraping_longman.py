@@ -7,6 +7,7 @@ import re
 
 
 def main(spell):
+    spell=spell.replace(" ","-")
     if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
         spell = spell.lower()
         url = "https://www.ldoceonline.com/jp/dictionary/english-japanese/" + spell
@@ -18,30 +19,45 @@ def main(spell):
     source = requests.get(url, headers=headers)
     data = BeautifulSoup(source.content, "html.parser")
     explanation_list = []
-    if data.select(".lejEntry"):
-        if data.select(".Translation"):
-            for i in range(len(data.select(".Translation"))):
-                if data.select(".Translation")[i].select(".BOXTRAN.TRAN"):
-                    continue
-                if data.select(".Translation")[i].select(".PRETRANCOM") or data.select(".Translation")[i].select(".COLL"):
-                    explanation_list.append(
-                        data.select(".Translation")[i].get_text())
-                    continue
-                tmp = ""
-                if data.select(".Translation")[i].select(".TRAN"):
-                    for j in range(len(data.select(".Translation")[i].select(".TRAN"))):
-                        tmp += data.select(".Translation")[
-                            i].select(".TRAN")[j].get_text()
-                if tmp:
-                    explanation_list.append(tmp)
-    if data.select(".ljeEntry"): 
-        if data.select(".Subentry"):
-            for i in range(len(data.select(".Subentry"))):
-                t = ""
-                if i == 0:
-                    t += data.select(".HWD")[0].get_text()
-                t += data.select(".Subentry")[i].get_text()
-                explanation_list.append(t)
+    if data.select_one(".lejEntry"):
+        if data.select_one(".lejEntry").select_one(".Wordclass"):
+            da=data.select_one(".lejEntry").select_one(".Wordclass").get_text()
+            pos,gram="",""
+            if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".POS"):
+                pos=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".POS").get_text()
+            if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".GRAM"):
+                gram=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".GRAM").get_text()
+            if data.select_one(".lejEntry").select_one(".Wordclass").select(".Lexubox"):
+                for k in data.select_one(".lejEntry").select_one(".Wordclass").select(".Lexubox"):
+                    if k.select_one(".LEXUINFO"):
+                        LEXUINFO=k.select_one(".LEXUINFO").get_text()
+                        da=da.replace(LEXUINFO,"")
+                    if k.select_one(".LEXUNIT"):
+                        LEXUNIT=k.select_one(".LEXUNIT").get_text()
+                        da=da.replace(LEXUNIT,"")
+                    if k.select_one(".Sense"):
+                        if k.select_one(".Sense").select_one(".Translation"):
+                            if k.select_one(".Sense").select_one(".Translation").select_one(".BOXTRAN.TRAN"):
+                                BOXTRAN=k.select_one(".Sense").select_one(".Translation").select_one(".BOXTRAN.TRAN").get_text()
+                                da=da.replace(BOXTRAN,"")
+            if data.select(".Patternbox"):
+                for i in range(len(data.select(".Patternbox"))):
+                    da=da.replace(data.select(".Patternbox")[i].get_text(),"")
+            explanation_list.append(da.replace(gram,"").replace(pos,""))
+        if len(explanation_list)==0:
+            da=""
+            gram=""
+            if data.select_one(".lejEntry").select(".Phrvsense"):
+                for k in data.select_one(".lejEntry").select(".Phrvsense"):
+                    da+=k.get_text()
+            explanation_list.append(da)
+            
+
+    if data.select_one(".ljeEntry"):  # 和英
+        if data.select_one(".ljeEntry").select_one(".inline.Subentry"):  # 和英
+            if data.select_one(".ljeEntry").select_one(".inline.Subentry").select_one(".POS"):
+                pos=data.select_one(".ljeEntry").select_one(".inline.Subentry").select_one(".POS").get_text()
+            explanation_list.append(data.select_one(".ljeEntry").select_one(".inline.Subentry").get_text().replace(pos,""))
     tao = explanation_list
     result = ""
     for idx, txt in enumerate(tao):
@@ -60,7 +76,7 @@ def main(spell):
 
 
 def onlyAlphabet(text):
-    re_roman = re.compile(r'^[a-zA-Z\.]+$')
+    re_roman = re.compile(r'^[a-zA-Z\.]+$')  # a-z:小文字、A-Z:大文字
     return re_roman.fullmatch(text)
 
 
@@ -72,7 +88,10 @@ def onlyJa(text):
 
 if __name__ == '__main__':
     spell = " ".join(sys.argv[1:]).strip()
-    out = main(spell)
+    # print(spell)
+    # spell = " ".join(spell)  # いち文字目半角スペースなどの対策
+    out = main(spell)[0]
+    #print(out)
     obj = []
     if out == "(error) this word is not found":
         tao = {
@@ -82,14 +101,33 @@ if __name__ == '__main__':
         }
         obj.append(tao)
     else:
-        for idx, i in enumerate(out):
-            if onlyAlphabet(spell):
-                ken = i.split("• ")
-            else:
-                ken = i.split("‣")
-            if len(ken) > 1:
-                for idx, k in enumerate(ken):
-                    if onlyAlphabet(spell):
+        #print(len(out))
+        if onlyAlphabet(spell[0]):
+            #if "  " in i:
+            #print(out)
+            k=re.compile(r"\d ").split(out)
+            #print(k)
+            k.pop(0)
+            #print(len(k),k)
+            #out1="• ".join(k)
+            for out1 in k:
+                #print("out1",out1)
+                out1 = out1[:out1.find("成句  →")]
+                ken = out1.split("• ")
+                #ken = re.split("[•b]",out1)
+                s=[]
+                for i in ken:
+                    k=i.split("．")
+                    for j in k:
+                        if j=="   " or j==" ":
+                            continue
+                        if j:
+                            s.append(j)
+                ken=s
+                #print(ken)
+                if len(ken) > 1:
+                    for idx, k in enumerate(ken):
+                        #print("k",k)
                         if idx == 0:
                             tao = {
                                 'title': ken[0],
@@ -100,6 +138,58 @@ if __name__ == '__main__':
                             reibun_j = ""
                             reibun_e = ""
                             for i in u:
+                                #print("iiiiiiiiii",i)
+                                if i:
+                                    if onlyAlphabet(i[0]):
+                                        reibun_e += i
+                                        reibun_e += " "
+                                    else:
+                                        reibun_j += i
+                                
+                            tao = {
+                                'title': "  ‣ "+reibun_e,
+                                'subtitle': "    "+reibun_j,
+                                'arg': k
+                            }
+                        obj.append(tao)
+                elif len(ken)==0:
+                    continue
+                else:
+                    tao = {
+                        'title': ken[0],
+                        'arg': ken[0]
+                    }
+                    obj.append(tao)
+            # else:
+            #     ken = out.split("‣")
+        #print("ken",ken)
+        else:
+            #print("out",out)
+            k = out.split("‣  ")
+            k.pop(0)
+            for out1 in k:
+                #print("out1",len(out1),out1)
+                ken = out1.split("• ")
+                if len(ken) > 1:
+                    for idx, k in enumerate(ken):
+                        if " → See English-Japanese Dictionary" in k:
+                            k = k.split(" → See English-Japanese Dictionary")[0]
+                            #print(k)
+                        if idx == 0:
+                            tao = {
+                                'title': k,
+                            }
+                        else:
+                            # tao = {
+                            #     'title': "‣ "+k,
+                            #     'subtitle': k.split(" 〘")[0],
+                            #     'arg': k.split(" 〘")[0]
+                            # }
+                            u = k.split(" ")
+                            reibun_j = ""
+                            reibun_e = ""
+                            for i in u:
+                                #print("iiiiiiiiii",i)
                                 if onlyAlphabet(i):
                                     reibun_e += i
                                     reibun_e += " "
@@ -111,26 +201,11 @@ if __name__ == '__main__':
                                 'arg': k
                             }
                         obj.append(tao)
-                    else:
-                        if " → See English-Japanese Dictionary" in k:
-                            k = k.split(
-                                " → See English-Japanese Dictionary")[0]
-                        if idx == 0:
-                            tao = {
-                                'title': ken[0],
-                            }
-                        else:
-                            tao = {
-                                'title': "‣ "+k[2:],
-                                'subtitle': k[2:].split(" 〘")[0],
-                                'arg': k[2:].split(" 〘")[0]
-                            }
-                        obj.append(tao)
-            else:
-                tao = {
-                    'title': ken[0],
-                    'arg': ken[0]
-                }
-                obj.append(tao)
+                else:
+                    tao = {
+                        'title': ken[0],
+                        'arg': ken[0]
+                    }
+                    obj.append(tao)
     jso = {'items': obj}
     sys.stdout.write(json.dumps(jso, ensure_ascii=False))
