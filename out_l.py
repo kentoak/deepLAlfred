@@ -10,6 +10,7 @@ def onlyAlphabet(text):
     return re_roman.fullmatch(text)
 
 def main(spell):
+    spell=spell.replace(" ","-")
     if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
         spell = spell.lower()
         url = "https://www.ldoceonline.com/jp/dictionary/english-japanese/" + spell
