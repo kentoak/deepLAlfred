@@ -13,7 +13,7 @@ def onlyAlphabet(text):
 def main(spell):
     spellForLink=spell.replace(" ","%20")
     if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
-        spell = spell.lower()
+        spellForLink = spellForLink.lower()
         url = "https://eow.alc.co.jp/search?q=" + spellForLink
     else:
         url = "https://eow.alc.co.jp/search?q=" + spellForLink
