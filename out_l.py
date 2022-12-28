@@ -10,12 +10,12 @@ def onlyAlphabet(text):
     return re_roman.fullmatch(text)
 
 def main(spell):
-    spell=spell.replace(" ","-")
+    spellForLink=spell.replace(" ","-")
     if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
-        spell = spell.lower()
-        url = "https://www.ldoceonline.com/jp/dictionary/english-japanese/" + spell
+        spellForLink = spellForLink.lower()
+        url = "https://www.ldoceonline.com/jp/dictionary/english-japanese/" + spellForLink
     else:
-        url = "https://www.ldoceonline.com/jp/dictionary/japanese-english/" + spell
+        url = "https://www.ldoceonline.com/jp/dictionary/japanese-english/" + spellForLink
     headers = {
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0"
     }
