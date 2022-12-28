@@ -11,12 +11,12 @@ def onlyAlphabet(text):
 
 
 def main(spell):
-    spell=spell.replace(" ","%20")
+    spellForLink=spell.replace(" ","%20")
     if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
         spell = spell.lower()
-        url = "https://eow.alc.co.jp/search?q=" + spell
+        url = "https://eow.alc.co.jp/search?q=" + spellForLink
     else:
-        url = "https://eow.alc.co.jp/search?q=" + spell
+        url = "https://eow.alc.co.jp/search?q=" + spellForLink
     headers = {
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0"
     }
@@ -37,12 +37,6 @@ def main(spell):
                     else:
                         explanation_list.append(data.select("#resultsList")[0].find("ul").find("li").find_all("div")[i].get_text())
     if len(explanation_list) != 0:
-        word=spell.replace(" ","%20")
-        if onlyAlphabet(word):
-            word = word.lower()
-            url = "https://eow.alc.co.jp/search?q=" + word
-        else:
-            url = "https://eow.alc.co.jp/search?q=" + word
         tao = {
             'title': spell+" をデータベースへ追加",
             'subtitle': url,
