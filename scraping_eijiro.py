@@ -89,15 +89,16 @@ if __name__ == '__main__':
                 ken = [i]
             if len(ken) > 1:
                 for idx, k in enumerate(ken):
+                    k=re.sub(re.compile(r"\｛(.+?)\｝"), "", k) #ふりがなを消去
                     if onlyAlphabet(spell.split()[0]):
                         if idx == 0:
                             tao = {
-                                'title': ken[0],
+                                'title': k,
                                 'arg': k
                             }
                         else:
                             u = k.split(":")
-                            reibun_j = ""
+                            reibun_j = "" #日本語
                             reibun_e = ""
                             if u[0]:
                                 for now in u:
@@ -106,6 +107,8 @@ if __name__ == '__main__':
                                             reibun_e += now
                                             reibun_e += " "
                                         else:
+                                            if now[-1] == "・":
+                                                now = now[:-1]
                                             reibun_j += now
                                 
                                 tao = {
@@ -119,10 +122,12 @@ if __name__ == '__main__':
                     else:
                         print("アルファベットじゃない")
             else:
+                k=re.sub(re.compile(r"\｛(.+?)\｝"), "", ken[0])
                 tao = {
-                    'title': ken[0],
-                    'arg': ken[0]
+                    'title': k,
+                    'arg': k
                 }
                 obj.append(tao)
     jso = {'items': obj}
     sys.stdout.write(json.dumps(jso, ensure_ascii=False))
+
