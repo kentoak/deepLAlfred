@@ -8,46 +8,65 @@ import re
 
 def main(spell):
     spell=spell.replace(" ","-")
-    if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
-        spell = spell.lower()
-        url = "https://www.ldoceonline.com/jp/dictionary/english-japanese/" + spell
-    else:
-        url = "https://www.ldoceonline.com/jp/dictionary/japanese-english/" + spell
     headers = {
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0"
     }
+    if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
+        spell = spell.lower()
+        url = "https://www.ldoceonline.com/jp/dictionary/english-japanese/" + spell
+        # if requests.get(url, headers=headers)=="":
+        #     print(requests.get(url, headers=headers).status_code)
+        #     url = "https://www.ldoceonline.com/jp/dictionary/english-japanese/" + spell + "_1"
+    else:
+        url = "https://www.ldoceonline.com/jp/dictionary/japanese-english/" + spell
+    #print(url)
     source = requests.get(url, headers=headers)
     data = BeautifulSoup(source.content, "html.parser")
+    if data.select_one(".search_title"):
+        data.select_one(".search_title").get_text()=="次のような意味ですか:"
+        source = requests.get(url+"_1", headers=headers)
+        data = BeautifulSoup(source.content, "html.parser")
     explanation_list = []
     if data.select_one(".lejEntry"):
         if data.select_one(".lejEntry").select_one(".Wordclass"):
             da=data.select_one(".lejEntry").select_one(".Wordclass").get_text()
             #print(da)
-            pos,gram,register="","",""
             if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".POS"):
                 pos=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".POS").get_text()
+                da=da.replace(pos,"")
             if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".GRAM"):
                 gram=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".GRAM").get_text()
+                da=da.replace(gram,"")
             if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".Labels"):
                 if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".Labels").select_one(".REGISTER"):
                     register=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".Labels").select_one(".REGISTER").get_text()
+                    da=da.replace(register,"")
+            if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".Inflection"):
+                Inflection=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".Inflection").get_text()
+                da=da.replace(Inflection,"")
             if data.select_one(".lejEntry").select_one(".Wordclass").select(".Lexubox"):
                 for k in data.select_one(".lejEntry").select_one(".Wordclass").select(".Lexubox"):
                     if k.select_one(".LEXUINFO"):
                         LEXUINFO=k.select_one(".LEXUINFO").get_text()
                         da=da.replace(LEXUINFO,"")
-                    if k.select_one(".LEXUNIT"):
-                        LEXUNIT=k.select_one(".LEXUNIT").get_text()
-                        da=da.replace(LEXUNIT,"")
-                    if k.select_one(".Sense"):
-                        if k.select_one(".Sense").select_one(".Translation"):
-                            if k.select_one(".Sense").select_one(".Translation").select_one(".BOXTRAN.TRAN"):
-                                BOXTRAN=k.select_one(".Sense").select_one(".Translation").select_one(".BOXTRAN.TRAN").get_text()
-                                da=da.replace(BOXTRAN,"")
-                                #print("BOXTRAN",BOXTRAN)
-                        # if k.select_one(".Sense").select_one(".SEMINDINFO"):
-                        #     SEMINDINFO=k.select_one(".Sense").select_one(".SEMINDINFO").get_text()
-                        #     da=da.replace(SEMINDINFO,"")
+                    # if k.select_one(".LEXUNIT"):
+                    #     LEXUNIT=k.select_one(".LEXUNIT").get_text()
+                    #     da=da.replace(LEXUNIT,"")
+                    # if k.select(".Sense"):
+                    #     for p in k.select(".Sense"):
+                    #         if p.select_one(".Translation"):
+                    #             if p.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                    #                 for q in p.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                    #                     BOXTRAN=q.get_text()
+                    #                     da=da.replace(BOXTRAN,"")
+                    #             if p.select_one(".Translation").select(".TRAN"):
+                    #                 for q in p.select_one(".Translation").select(".TRAN"):
+                    #                     TRAN=q.get_text()
+                    #                     da=da.replace(TRAN,"")
+                                    #print("BOXTRAN",BOXTRAN)
+                            # if p.select_one(".SEMINDINFO"):
+                            #     SEMINDINFO=p.select_one(".SEMINDINFO").get_text()
+                            #     da=da.replace(SEMINDINFO,"")
                     if k.select_one(".Labels"):
                         Labels=k.select_one(".Labels").get_text()
                         da=da.replace(Labels,"")
@@ -60,9 +79,9 @@ def main(spell):
                     if k.select_one(".SEMINDINFO"):
                         SEMINDINFO=k.select_one(".SEMINDINFO").get_text()
                         da=da.replace(SEMINDINFO,"")
-                    if k.select_one(".SEMIND"):
-                        SEMIND=k.select_one(".SEMIND").get_text()
-                        da=da.replace(SEMIND,"")
+                    # if k.select_one(".SEMIND"):
+                    #     SEMIND=k.select_one(".SEMIND").get_text()
+                    #     da=da.replace(SEMIND,"")
                     if k.select_one(".GRAM"):
                         GRAM=k.select_one(".GRAM").get_text()
                         da=da.replace(GRAM,"")
@@ -75,18 +94,27 @@ def main(spell):
                     if k.select_one(".SUBJINFOTRAN"):
                         SUBJINFOTRAN=k.select_one(".SUBJINFOTRAN").get_text()
                         da=da.replace(SUBJINFOTRAN,"")
-                    if k.select_one(".Translation"):
-                        if k.select_one(".Translation").select_one(".BOXTRAN.TRAN"):
-                            BOXTRAN=k.select_one(".Translation").select_one(".BOXTRAN.TRAN").get_text()
-                            da=da.replace(BOXTRAN,"")
-                    if k.select(".Patternbox"):
-                        for j in k.select(".Patternbox"):
-                            if j.select_one(".PATTERN"):
-                                PATTERN=j.select_one(".PATTERN").get_text()
-                                da=da.replace(PATTERN,"")
-                            if j.select_one(".PATTERNPREP"):
-                                PATTERNPREP=j.select_one(".PATTERNPREP").get_text()
-                                da=da.replace(PATTERNPREP,"")
+                        # if k.select_one(".Translation").select_one(".FREQTRAN.TRAN"):
+                        #     print("sssssssssss",k.select_one(".Translation").select_one(".FREQTRAN.TRAN"))
+                    # if k.select(".Patternbox"):
+                    #     for j in k.select(".Patternbox"):
+                    #         if j.select_one(".PATTERN"):
+                    #             PATTERN=j.select_one(".PATTERN").get_text()
+                    #             da=da.replace(PATTERN,"")
+                    #         if j.select_one(".PATTERNPREP"):
+                    #             PATTERNPREP=j.select_one(".PATTERNPREP").get_text()
+                    #             da=da.replace(PATTERNPREP,"")
+                    #         if j.select(".Sense"):
+                    #             for k in j.select(".Sense"):
+                    #                 if k.select_one(".Translation"):
+                    #                     if k.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                    #                         for m in k.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                    #                             BOXTRAN=m.get_text()
+                    #                             da=da.replace(BOXTRAN,"")
+                    #                     if k.select_one(".Translation").select(".TRAN"):
+                    #                         for m in k.select_one(".Translation").select(".TRAN"):
+                    #                             TRAN=m.get_text()
+                    #                             da=da.replace(TRAN,"")
             if data.select_one(".lejEntry").select_one(".Wordclass").select(".Tail"):
                 for k in data.select_one(".lejEntry").select_one(".Wordclass").select(".Tail"):
                     Tails=k.get_text()
@@ -99,8 +127,24 @@ def main(spell):
                     if j.select_one(".PATTERNPREP"):
                         PATTERNPREP=j.select_one(".PATTERNPREP").get_text()
                         da=da.replace(PATTERNPREP,"")
+                    if j.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                        for m in j.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                            BOXTRAN=m.get_text()
+                            da=da.replace(BOXTRAN,"")
+                    if j.select(".Sense"):
+                        for k in j.select(".Sense"):
+                            if k.select_one(".Translation"):
+                                if k.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                                    for m in k.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                                        BOXTRAN=m.get_text()
+                                        da=da.replace(BOXTRAN,"")
+                                if k.select_one(".Translation").select(".TRAN"):
+                                    for m in k.select_one(".Translation").select(".TRAN"):
+                                        TRAN=m.get_text()
+                                        da=da.replace(TRAN,"")
             #print("da",da.replace(gram,"").replace(pos,"").replace(register,"").replace("\n","").rstrip().lstrip())
-            final=da.replace(gram,"").replace(pos,"").replace(register,"").replace("\n","").rstrip().lstrip()
+            #print("dda",da)
+            final=da.replace("\n","").rstrip().lstrip()
             #print("final",final)
             explanation_list.append(final)
         
@@ -140,12 +184,16 @@ def onlyAlphabet(text):
     re_roman = re.compile(r'^[a-zA-Z\.]+$')  # a-z:小文字、A-Z:大文字
     return re_roman.fullmatch(text)
 
-
 def onlyJa(text):
     re_ja = re.compile(
         r'^[\u4E00-\u9FFF|\u3040-\u309F|\u30A0-\u30FF]{1,10}[\u4E00-\u9FFF|\u3040-\u309F|\u30A0-\u30FF]{1,10}$')
     return re_ja.fullmatch(text)
 
+def contains_doubleByte_char(text):
+    # 正規表現を使用して、文章の中に全角文字が含まれているかどうかを判定する
+    if re.search(r'’| / ', text):
+        return False
+    return bool(re.search(r'[^\x00-\x7F]', text))
 
 if __name__ == '__main__':
     spell = " ".join(sys.argv[1:]).strip()
@@ -165,15 +213,25 @@ if __name__ == '__main__':
         if onlyAlphabet(spell[0]):
             #if "  " in i:
             #print(out)
-            k=re.compile(r"\d ").split(out) #数字+半角スペース区切りで分割
-            #print("k",k)
+            #k=re.compile(r"\d\s[^\x00-\x7F]").split(out) #数字+半角スペース+全角区切りで分割
+            #k=re.split(r"(?=\d{2}(?=\d*\s[^\x00-\x7F]))|(?=\d{1,2}\s<)|(?=\d{1,2}\s\s→)|(?=\d(?=\d*\s\s\())|(?=\d+\s\s<)|(?=\d\s\s\sa\))",out) #数字(1回以上の繰り返し)+半角スペース+全角区切りなどで正規表現の先読みをして分割
+            #k=re.compile(r"\d{2}(?=\s+\()|\d+(?=\s+\()").split(out)
+            pattern=re.compile(r"\d{2}(?=\s+[^\x00-\x7F])|\d{1}(?=\s+[^\x00-\x7F])|\d{2}(?=\s+<)|\d{1}(?=\s+<)|\d{2}(?=\s+→)|\d{2}(?=\s+→)|\d{2}(?=\s+\()|\d{1}(?=\s+\()|\d{2}(?=\s+a\))|\d{1}(?=\s+a\))|\d{2}(?=\s{2}\w)|\d{1}(?=\s{2}\w)")
+            k=pattern.split(out)
+            
+            # print("len(k)",len(k),"\n")
+            # for i in k:
+            #     print("kkkk",i)
             #k.pop(0)
             #print(len(k),k)
             #out1="• ".join(k)
+            num=0
             for out1 in k:
                 if len(k)==0:
                     continue
                 #print("out1",out1)
+                if not out1:
+                    continue
                 if out1.find("成句  →")>=0:
                     out1 = out1[:out1.find("成句  →")]
                 if out1.find(" —")>=0:
@@ -184,35 +242,45 @@ if __name__ == '__main__':
                 #ken = re.split("[•b]",out1)
                 s=[]
                 for i in ken:
-                    k=i.split("．")
+                    #k=i.split("．")
+                    #print(i)
+                    k=re.compile(r"．|(?<=[^\x00-\x7F]\s{2})").split(i)
                     for j in k:
+                        #print(j)
                         if j=="   " or j==" ":
                             continue
                         if j:
+                            #print(s)
                             s.append(j)
                 ken=s
                 if len(ken) > 1:
                     for idx, k in enumerate(ken):
-                        #print("k",k)
-                        if idx == 0:
+                        #print("k",k,"idx",idx)
+                        if idx == 0:#番号+意味のところ！
+                            num+=1
                             tao = {
-                                'title': ken[0],
+                                'title': str(num)+ken[0],
                                 'arg': k
                             }
                         else:
                             u = k.split(" ")
+                            #print("u",u)
                             reibun_j = ""
                             reibun_e = ""
                             for i in u:
-                                #print("iiiiiiiiii",i)
                                 if i:
-                                    if onlyAlphabet(i[0]):
-                                        reibun_e += i
-                                        reibun_e += " "
-                                    else:
-                                        reibun_j += i
+                                    #print("iiiiiiiiii",i)
+                                    if i!=",":
+                                        #print("iiiii",i)
+                                        if not contains_doubleByte_char(i):
+                                            reibun_e += i
+                                            reibun_e += " "
+                                        else:
+                                            reibun_j += i
+                                        #print("e ",reibun_e)
+                                        #print("j ",reibun_j)
                             if reibun_e and reibun_j:
-                                if "b) " in reibun_e:
+                                if re.match("[a-z]\)\s",reibun_e): #b)など
                                     tao = {
                                         'title': "  "+ reibun_e + reibun_j,
                                         'arg': k
@@ -223,12 +291,16 @@ if __name__ == '__main__':
                                         'subtitle': "    "+reibun_j,
                                         'arg': k
                                     }
+                            else:
+                                continue
+                        #print("tao",tao)
                         obj.append(tao)
                 elif len(ken)==0:
                     continue
-                else:
+                else:#番号+意味のところ！
+                    num+=1
                     tao = {
-                        'title': ken[0],
+                        'title': str(num)+ken[0],
                         'arg': ken[0]
                     }
                     obj.append(tao)
