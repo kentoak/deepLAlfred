@@ -1,10 +1,15 @@
 # DeepLWithNotion
 
-① DeepLで翻訳
-② ロングマン英和辞典で単語検索
-③ 英辞郎から単語検索
+1. DeepLで翻訳
+2. ロングマン英和辞典で単語検索
+3. 英辞郎から単語検索
+
 を同時に実行し、Notion Databaseに保存して自分だけの辞書を作ることができるAlfred Workflow。
-ランチャーアプリAlfred（Spotlight検索の完全上位互換）の有料版を買うと使うことが出来ます。Alfredの検索窓から`d`+半角スペースのあとに翻訳したい単語（文章）を打つと、DeepLで翻訳&ロングマン英和辞典と英辞郎から単語検索された結果が表示される。英和も和英も対応（OCRは英和のみ）。NotionのDatabaseに保存できる。
+ランチャーアプリAlfred（Spotlight検索の完全上位互換）の有料版を買うと使える。
+
+Alfredの検索窓から`d`+半角スペースのあとに翻訳したい単語（文章）を打つと、DeepLで翻訳&ロングマン英和辞典と英辞郎から単語検索された結果が表示される。英和も和英も対応（OCRは英和のみ）。
+
+NotionのDatabaseに保存できる。
 
 ![画面収録 2022-12-28 16 31 48 (1)_fps30_width640](https://user-images.githubusercontent.com/43945931/209777244-8d4b5cfd-680d-462f-b395-ee856c0d39c4.gif)
 
@@ -50,7 +55,8 @@ PDFの仕様などでコピーができない場合や、翻訳したい文章�
   
 一連の流れ
 1. Alfredの検索窓から`d cocky`
- ![image](https://user-images.githubusercontent.com/43945931/209459972-903abc8a-c8ab-4c04-a516-5c3e94e588f9.png)
+ ![image](https://user-images.githubusercontent.com/43945931/210131598-0bf14e34-c19d-45be-8e7c-04bbcc6536ae.png)
+
 
 2. cockyをデータベースへ追加のところで`⌘+Enter`を押す（Subtitleのリンクを見てロングマンと英辞郎を選択できる。辞書に載っていない場合はDeepL翻訳結果が追加される）
 3. 通知が来る
