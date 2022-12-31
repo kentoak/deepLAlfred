@@ -24,7 +24,7 @@
 ![image](https://user-images.githubusercontent.com/43945931/209459707-26a52b81-1e77-4e9d-acca-9960bebc44cc.png)
 
 ### Longman英和・和英辞典の単語検索
-[Atsu英語さんがLongman英和最強！って言っていた](https://twitter.com/atsueigo/status/1204702821595004928?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1204702821595004928%7Ctwgr%5E3892e63e53556ed517de642ad6e4787c3a44e23c%7Ctwcon%5Es1_&ref_url=https%3A%2F%2Fqiita.com%2Fkentoak%2Fitems%2Ff08c914f1f5c41c09597)ので、ロングマンを使う。
+[Atsu英語氏がLongman英和最強！って言っていた](https://twitter.com/atsueigo/status/1204702821595004928?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1204702821595004928%7Ctwgr%5E3892e63e53556ed517de642ad6e4787c3a44e23c%7Ctwcon%5Es1_&ref_url=https%3A%2F%2Fqiita.com%2Fkentoak%2Fitems%2Ff08c914f1f5c41c09597)ので、ロングマンを使う。
 ロングマン英和辞典で辞書検索し、例文も取得できる。
 
 ![image](https://user-images.githubusercontent.com/43945931/210131553-e68d9c3c-5187-4f6e-8efb-908d743dafaa.png)
