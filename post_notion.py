@@ -14,7 +14,8 @@ notion_api_key = os.environ["NOTION_API_KEY"] or ""
 notion_database_url = os.environ["NOTION_DATABASE_URL"] or ""
 deepl_auth_key = os.environ["DEEPL_AUTH_KEY"] or ""
 
-def main(spell):
+def longman(spell):
+    spell=word.replace(" ","-")
     if onlyAlphabet(spell):
         spell = spell.lower()
         url = "https://www.ldoceonline.com/jp/dictionary/english-japanese/" + spell
@@ -26,12 +27,11 @@ def main(spell):
     source = requests.get(url, headers=headers)
     data = BeautifulSoup(source.content, "html.parser")
     explanation_list = []
-    if data.select(".lejEntry"):  # 英和
+    if data.select(".lejEntry"):
         if data.select(".Translation"):
             for i in range(len(data.select(".Translation"))):
                 if data.select(".Translation")[i].select(".BOXTRAN.TRAN"):
                     continue
-                # 丸括弧#とんがりかっこ
                 if data.select(".Translation")[i].select(".PRETRANCOM") or data.select(".Translation")[i].select(".COLL"):
                     explanation_list.append(
                         data.select(".Translation")[i].get_text())
@@ -39,11 +39,10 @@ def main(spell):
                 tmp = ""
                 if data.select(".Translation")[i].select(".TRAN"):
                     for j in range(len(data.select(".Translation")[i].select(".TRAN"))):
-                        tmp += data.select(".Translation")[
-                            i].select(".TRAN")[j].get_text()
+                        tmp += data.select(".Translation")[i].select(".TRAN")[j].get_text()
                 if tmp:
                     explanation_list.append(tmp)
-    if data.select(".ljeEntry"):  # 和英
+    if data.select(".ljeEntry"):
         if data.select(".Subentry"):
             for i in range(len(data.select(".Subentry"))):
                 t = ""
@@ -69,7 +68,7 @@ def main(spell):
 
 def eijiro(word):
     spell=word.replace(" ","%20")
-    if onlyAlphabet(spell):
+    if onlyAlphabet(spell[0]) or onlyAlphabet(spell[-1]):
         spell = spell.lower()
         url = "https://eow.alc.co.jp/search?q=" + spell
     else:
@@ -80,7 +79,6 @@ def eijiro(word):
     source = requests.get(url, headers=headers)
     data = BeautifulSoup(source.content, "html.parser")
     explanation_list = []
-
     if data.select("#resultsList"):
         if data.select("#resultsList")[0].find("ul"):
             if data.select("#resultsList")[0].find("ul").find("li").find_all("div"):
@@ -90,6 +88,8 @@ def eijiro(word):
                             if data.select("#resultsList")[0].find("ul").find("li").find_all("div")[i].find_all("ol")[j].find_all("li"):
                                 for k in range(len(data.select("#resultsList")[0].find("ul").find("li").find_all("div")[i].find_all("ol")[j].find_all("li"))):
                                     explanation_list.append(data.select("#resultsList")[0].find("ul").find("li").find_all("div")[i].find_all("ol")[j].find_all("li")[k].get_text())
+                            else:
+                                    explanation_list.append(data.select("#resultsList")[0].find("ul").find("li").find_all("div")[i].find_all("ol")[j].get_text())
                     else:
                         explanation_list.append(data.select("#resultsList")[0].find("ul").find("li").find_all("div")[i].get_text())
     tao = explanation_list
@@ -123,10 +123,11 @@ def deepLMeaning(word, onlyAlphabetFlag):
 
 meaningList = []
 links = []
-
-def format(word, onlyAlphabetFlag, out):
-    if out != "(error) this word is not found":
-        for idx, i in enumerate(out):
+useDeepL=[]
+def main(word, onlyAlphabetFlag, link):
+    if "https://www.ldoceonline.com/jp/dictionary" in link:
+        useLongman = longman(word)
+        for idx, i in enumerate(useLongman):
             if onlyAlphabetFlag:
                 ken = i.split("• ")
             else:
@@ -144,7 +145,7 @@ def format(word, onlyAlphabetFlag, out):
                             meaningList.append(ken[0])
             else:
                 meaningList.append(ken[0])
-    else:
+    elif "https://eow.alc.co.jp/search" in link:
         useEijiro = eijiro(word)
         if useEijiro != "(error) this word is not found":
             spell=word.replace(" ","%20")
@@ -155,17 +156,21 @@ def format(word, onlyAlphabetFlag, out):
                 url = "https://eow.alc.co.jp/search?q=" + spell
             links.append(url)
             for idx, i in enumerate(useEijiro):
+                i = re.sub(re.compile(r"\｛(.+?)\｝"), "", i) #ふりがなを消去
                 if ":" in i:
-                    ken = i.split("・")
+                    #ken = i.split("・")
+                    ken = re.split(r"(?=・[a-zA-Z])",i)
+                    #k=re.split(r"(?=\d\s[^\x00-\x7F])",out) #数字+半角スペース+全角区切りで正規表現の先読みをして分割
                 else:
                     ken = [i]
                 meaningList.append(ken[0])
-        else:
-            meaningList.append(deepLMeaning(word, onlyAlphabetFlag))
+    else:
+        useDeepL.append(1)
+        meaningList.append(deepLMeaning(word, onlyAlphabetFlag))
 
 
 def onlyAlphabet(text):
-    re_roman = re.compile(r'^[a-zA-Z\.]+$') # a-z:小文字、A-Z:大文字
+    re_roman = re.compile(r'^[a-zA-Z\.]+$')
     return re_roman.fullmatch(text[0])
 
 
@@ -175,13 +180,18 @@ def get_request_url(end_point):
 
 if "https://www.ldoceonline.com/jp/dictionary" in sys.argv[1:][0]:
     link = sys.argv[1:][0]
-    word = link[59:]
+    word = link[59:].replace("-"," ")
+elif "https://eow.alc.co.jp/search" in sys.argv[1:][0]:
+    link = sys.argv[1:][0]
+    word = link[31:].replace("%20"," ")
 else:
     link = "なし"
     word = " ".join(sys.argv[1:])
-out = main(word)
 onlyAlphabet_ = onlyAlphabet(sys.argv[1:][0][0]) or onlyAlphabet(sys.argv[1:][0][-1])
-format(word, onlyAlphabet_, out)
+main(word, onlyAlphabet_, link)
+if len(useDeepL)==0:
+    if onlyAlphabet(word[0]) or onlyAlphabet(word[-1]):
+        word = word.lower()
 if links:
     link=links[0]
 headers_for_notion = {"Authorization": f"Bearer {notion_api_key}",
