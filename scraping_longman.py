@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import sys
 import json
 import re
+import urllib.parse
 
 
 def main(spell):
@@ -34,6 +35,9 @@ def main(spell):
             if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".POS"):
                 pos=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".POS").get_text()
                 da=da.replace(pos,"")
+            if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".Varbox"):
+                Varbox=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".Varbox").get_text()
+                da=da.replace(Varbox,"")
             if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".GRAM"):
                 gram=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".GRAM").get_text()
                 da=da.replace(gram,"")
@@ -115,22 +119,34 @@ def main(spell):
                     #                         for m in k.select_one(".Translation").select(".TRAN"):
                     #                             TRAN=m.get_text()
                     #                             da=da.replace(TRAN,"")
+                    if k.select(".inline.Patternbox"):
+                        for j in k.select(".inline.Patternbox"):
+                            if j.select_one(".PATTERNINFO"):
+                                PATTERNINFO=j.select_one(".PATTERNINFO").get_text()
+                                da=da.replace(PATTERNINFO,"")
+                                #print("tmp10",da)
+                #print("tmp1",da)
             if data.select_one(".lejEntry").select_one(".Wordclass").select(".Tail"):
                 for k in data.select_one(".lejEntry").select_one(".Wordclass").select(".Tail"):
                     Tails=k.get_text()
                     da=da.replace(Tails,"")
-            if data.select(".Patternbox"):
-                for j in k.select(".Patternbox"):
+                #print("tmp2",da)
+            if data.select("span[class=Patternbox]"): #incline patterboxと区別するためにCSSセレクタにする
+                for j in data.select("span[class=Patternbox]"):
                     if j.select_one(".PATTERN"):
                         PATTERN=j.select_one(".PATTERN").get_text()
                         da=da.replace(PATTERN,"")
+                        #print("tmp4",da)
                     if j.select_one(".PATTERNPREP"):
                         PATTERNPREP=j.select_one(".PATTERNPREP").get_text()
                         da=da.replace(PATTERNPREP,"")
-                    if j.select_one(".Translation").select(".BOXTRAN.TRAN"):
-                        for m in j.select_one(".Translation").select(".BOXTRAN.TRAN"):
-                            BOXTRAN=m.get_text()
-                            da=da.replace(BOXTRAN,"")
+                        #print("tmp5",da)
+                    if j.select_one(".Translation"):
+                        if j.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                            for m in j.select_one(".Translation").select(".BOXTRAN.TRAN"):
+                                BOXTRAN=m.get_text()
+                                da=da.replace(BOXTRAN,"")
+                        #print("tmp6",da)
                     if j.select(".Sense"):
                         for k in j.select(".Sense"):
                             if k.select_one(".Translation"):
@@ -138,23 +154,62 @@ def main(spell):
                                     for m in k.select_one(".Translation").select(".BOXTRAN.TRAN"):
                                         BOXTRAN=m.get_text()
                                         da=da.replace(BOXTRAN,"")
-                                if k.select_one(".Translation").select(".TRAN"):
-                                    for m in k.select_one(".Translation").select(".TRAN"):
-                                        TRAN=m.get_text()
-                                        da=da.replace(TRAN,"")
+                                if k.select_one(".Translation"):
+                                    if k.select_one(".Translation").select(".TRAN"):
+                                        for m in k.select_one(".Translation").select(".TRAN"):
+                                            TRAN=m.get_text()
+                                            da=da.replace(TRAN,"")
+                        #print("tmp7",da)
+                #print("tmp8",da)
             #print("da",da.replace(gram,"").replace(pos,"").replace(register,"").replace("\n","").rstrip().lstrip())
             #print("dda",da)
             final=da.replace("\n","").rstrip().lstrip()
             #print("final",final)
             explanation_list.append(final)
-        
-        if len(explanation_list)==0:
+        if data.select_one(".lejEntry").select(".Sense"):
             da=""
-            gram=""
-            if data.select_one(".lejEntry").select(".Phrvsense"):
-                for k in data.select_one(".lejEntry").select(".Phrvsense"):
+            for k in data.select_one(".lejEntry").select(".Sense"):   
+                da+=k.get_text()
+            final=da.replace("\n","").rstrip().lstrip()
+            explanation_list.append(final)
+
+        if data.select_one(".lejEntry").select_one(".Head"):
+            if data.select_one(".lejEntry").select_one(".Head").select(".Phrvsense"):
+                da=""
+                gram=""
+                explanation_list = []
+                for k in data.select_one(".lejEntry").select_one(".Head").select(".Phrvsense"):
                     da+=k.get_text()
-            explanation_list.append(da.replace("\n","").rstrip().lstrip())
+                #print(da)
+                for k in data.select_one(".lejEntry").select_one(".Head").select(".Phrvsense"):
+                    if k.select_one(".boxnum.span"):
+                        boxnum=k.select_one(".boxnum.span").get_text()
+                        da=da.replace(boxnum,boxnum+" ")
+                        #print("da ",da)
+                    if k.select_one(".SEMINDINFO"):
+                        SEMINDINFO=k.select_one(".SEMINDINFO").get_text()
+                        da=da.replace(SEMINDINFO,"")
+                    if k.select_one(".OBJINFO"):
+                        OBJINFO=k.select_one(".OBJINFO").get_text()
+                        da=da.replace(OBJINFO,"")
+                #print(da)
+                explanation_list.append(da.replace("\n","").rstrip().lstrip())
+        # if len(explanation_list)==0:
+        #     da=""
+        #     gram=""
+        #     if data.select_one(".lejEntry").select(".Phrvsense"): #句動詞とか
+        #         for k in data.select_one(".lejEntry").select(".Phrvsense"):
+        #             da+=k.get_text()
+        #         for k in data.select_one(".lejEntry").select(".Phrvsense"):
+        #             if k.select_one(".boxnum.span"):
+        #                 boxnum=k.select_one(".boxnum.span").get_text()
+        #                 da=da.replace(boxnum,boxnum+" ")
+        #             if k.select_one(".SEMINDINFO"):
+        #                 SEMINDINFO=k.select_one(".SEMINDINFO").get_text()
+        #                 da=da.replace(SEMINDINFO,"")
+
+            #print(da)
+            #explanation_list.append(da.replace("\n","").rstrip().lstrip())
             
 
     if data.select_one(".ljeEntry"):  # 和英
@@ -198,8 +253,8 @@ def contains_doubleByte_char(text):
 if __name__ == '__main__':
     spell = " ".join(sys.argv[1:]).strip()
     out1 = main(spell)
-    #print(out1)
-    out = main(spell)[0]
+    #print("\nout1 is        \n",out1)
+    out = out1[0]
     obj = []
     if out1 == "(error) this word is not found":
         tao = {
@@ -212,16 +267,17 @@ if __name__ == '__main__':
         #print(len(out))
         if onlyAlphabet(spell[0]):
             #if "  " in i:
-            #print(out)
+            #print("out is          ",out)
             #k=re.compile(r"\d\s[^\x00-\x7F]").split(out) #数字+半角スペース+全角区切りで分割
             #k=re.split(r"(?=\d{2}(?=\d*\s[^\x00-\x7F]))|(?=\d{1,2}\s<)|(?=\d{1,2}\s\s→)|(?=\d(?=\d*\s\s\())|(?=\d+\s\s<)|(?=\d\s\s\sa\))",out) #数字(1回以上の繰り返し)+半角スペース+全角区切りなどで正規表現の先読みをして分割
             #k=re.compile(r"\d{2}(?=\s+\()|\d+(?=\s+\()").split(out)
             pattern=re.compile(r"\d{2}(?=\s+[^\x00-\x7F])|\d{1}(?=\s+[^\x00-\x7F])|\d{2}(?=\s+<)|\d{1}(?=\s+<)|\d{2}(?=\s+→)|\d{2}(?=\s+→)|\d{2}(?=\s+\()|\d{1}(?=\s+\()|\d{2}(?=\s+a\))|\d{1}(?=\s+a\))|\d{2}(?=\s{2}\w)|\d{1}(?=\s{2}\w)")
             k=pattern.split(out)
-            
+
             # print("len(k)",len(k),"\n")
             # for i in k:
             #     print("kkkk",i)
+
             #k.pop(0)
             #print(len(k),k)
             #out1="• ".join(k)
@@ -258,10 +314,17 @@ if __name__ == '__main__':
                         #print("k",k,"idx",idx)
                         if idx == 0:#番号+意味のところ！
                             num+=1
-                            tao = {
-                                'title': str(num)+ken[0],
-                                'arg': k
-                            }
+                            #print("ken[0]",urllib.parse.quote(ken[0][0]))
+                            if ken[0][0]==" ":
+                                tao = {
+                                    'title': str(num)+"."+ken[0],
+                                    'arg': k
+                                }
+                            else:
+                                 tao = {
+                                    'title': str(num)+". "+ken[0],
+                                    'arg': k
+                                }
                         else:
                             u = k.split(" ")
                             #print("u",u)
@@ -299,8 +362,14 @@ if __name__ == '__main__':
                     continue
                 else:#番号+意味のところ！
                     num+=1
-                    tao = {
-                        'title': str(num)+ken[0],
+                    if ken[0][0]==" ":
+                        tao = {
+                            'title': str(num)+"."+ken[0],
+                            'arg': ken[0]
+                        }
+                    else:
+                        tao = {
+                        'title': str(num)+". "+ken[0],
                         'arg': ken[0]
                     }
                     obj.append(tao)
