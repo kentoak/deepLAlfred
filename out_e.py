@@ -37,14 +37,15 @@ def main(spell):
                     else:
                         explanation_list.append(data.select("#resultsList")[0].find("ul").find("li").find_all("div")[i].get_text())
     if len(explanation_list) != 0:
-        tao = {
-            'title': spell+" をデータベースへ追加",
-            'subtitle': url,
-            'arg': url
-        }
+        if "https://eow.alc.co.jp" in url:
+            tao = {
+                'title': spell+" をデータベースへ追加（英辞郎）",
+                'subtitle': url,
+                'arg': url
+            }
     else:
         tao = {
-            'title': spell+" をデータベースへ追加",
+            'title': spell+" をデータベースへ追加 (DeepL翻訳)",
             'subtitle': spell+" をDeepLで翻訳します",
             'arg': spell
         }
