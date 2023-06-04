@@ -14,22 +14,20 @@ function printJson() {
   echo '{"items": [{"uid": null,"arg": "'"$1"'","valid": "yes","autocomplete": "autocomplete","title": "'"$1"'"}]}'
 }
 
-POSITIONAL=()
-while [[ $# -gt 0 ]]; do
-  key="$1"
-  case "$key" in
-  -l | --lang)
-    LANGUAGE="$2"
-    shift 
-    shift 
-    ;;
-  *)
-    POSITIONAL+=("$1") 
-    shift
-    ;;
-  esac
-done
-set -- "${POSITIONAL[@]:-}"
+query="$1"
+target_lang="JA"
+if echo "${query:0:20}" | ggrep -P '[\x{3041}-\x{3096}]' >/dev/null; then
+  target_lang="EN"
+fi
+if echo "${query:0:20}" | ggrep -P '[\x{30A1}-\x{30FA}]' >/dev/null; then
+  target_lang="EN"
+fi
+if echo "${query:0:20}" | ggrep -P '[々〇\x{3400}-\x{9FFF}\x{F900}-\x{FAFF}\x{20000}-\x{2FFFF}]' >/dev/null; then
+  target_lang="EN"
+fi
+if echo "${query:0:20}" | ggrep -P '[\x{3001}-\x{301B}]' >/dev/null; then
+  target_lang="EN"
+fi
 
 
 if [ -z "$1" ]; then
@@ -45,23 +43,24 @@ query="$1"
 #query="$(echo "$query" | sed 's/\"/\\\"/g')" 
 query="$(echo "$query" | gsed -E 's/\. ([a-z])/\. \U\1/g')"
 query="$(echo "$query" | sed "s/\"/'/g")" 
-query="$(echo $query | sed -e "s/[\r\n]\+/ /g")" #改行を半角スペースに
+query="$(echo "$query" | sed -e "s/[\r\n]\+/ /g")" #改行を半角スペースに
 #query="$(echo "$query" | sed "s/'/\\\'/g")" 
 query="$(echo "$query" | sed "s/& /%26%20/g")" 
 query="$(echo "$query" | sed "s/% /%25%20/g")"
 query="$(echo "$query" | sed "s/¼/=/g")"
 query="$(echo "$query" | sed "s/´/'/g")"
-query="$(echo $query | sed -e "s/[\r\n]\+//g")"
+query="$(echo "$query" | sed -e "s/[\r\n]\+//g")"
 query="$(echo "$query" | iconv -f utf-8-mac -t utf-8 | xargs)"           
 
-result=$(curl -H 'Content-Type:application/x-www-form-urlencoded' -POST https://api-free.deepl.com/v2/translate -d "auth_key=${auth_key}" -d "text=${query}" -d "target_lang=${LANGUAGE:-EN}")
+result=$(curl -s -H 'Content-Type:application/x-www-form-urlencoded' -POST https://api-free.deepl.com/v2/translate -d "auth_key=${auth_key}" -d "text=${query}" -d "target_lang=$target_lang")
 
 if [[ $result == *'"error":{"code":'* ]]; then
   message=$(echo "$result" | "$PARSER" -r '.["error"]|.message')
   printJson "Error: $message"
 else
   sts=$(echo "$result" | "$PARSER" -r ".translations[0].text") 
-  sts="$(echo "$sts" | sed 's/\"/\\\"/g')" 
+  #sts="$(echo "$sts" | sed 's/\"/\\\"/g')" 
+  ssts="$(echo "$sts" | sed "s/\"/”/g")"
   sts="$(echo "$sts" | sed 's/．/。/g' | sed 's/，/、/g')" 
   sts1="$sts"
   cnt1="$(echo "$sts" | wc -m | bc)"
@@ -70,10 +69,11 @@ else
   myQuery="$(echo "$myQuery" | sed 's/%26/\&/g')" 
   myQuery="$(echo "$myQuery" | sed 's/%25/\%/g')" 
   myQuery="$(echo "$myQuery" | sed 's/%20/ /g')"
-  myQuery="$(echo "$myQuery" | sed 's/\"/\\\"/g')"
+  #myQuery="$(echo "$myQuery" | sed 's/\"/\\\"/g')"
+  myQuery="$(echo "$myQuery" | sed "s/\"/'/g")"
   cnt2="$(echo "$myQuery" | wc -m | bc)"
   if [[ ${query:0:20} != ${sts:0:20} ]]; then
-    if [[ ${LANGUAGE:-EN} == "JA" ]]; then 
+    if [[ $target_lang == "JA" ]]; then 
       sts="$(echo "$sts" | sed 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ０１２３４５６７８９/')"
       numForTitle=40
       if [[ $cnt1 -gt $(($numForTitle+1)) ]]; then 
@@ -84,8 +84,10 @@ else
         numForTitle=40
         subtitleFinish=false
         cnt1LastFlag=false
+        k=0
         while [ 1 ]
         do
+          k=$((k+1))
           cnt1=`expr $cnt1 - $numForTitle`
           if [[ $cnt1 -gt 0 ]]; then
             now=${sts:$((start)):$((numForTitle))} 
@@ -95,8 +97,8 @@ else
             now1=${sts1:$((start))}
           fi
           cntForEnd="$(echo "${myQuery:$((startForSubtitle))}" | wc -m | bc)"
+          endend=$numForSubtitle
           if [[ $cntForEnd -gt $numForSubtitle ]]; then
-            endend=$numForSubtitle
             for ((i=0; i < $numForSubtitle; i++)); do
               if [[ $i -eq 0 ]]; then
                 endbreak=${myQuery:$((startForSubtitle+endend-1)):1}
@@ -160,16 +162,21 @@ else
           if [[ $cnt1 -lt 0 ]] && [[ $cnt2 -lt 0 ]]; then
             break
           fi
+          if [[ $k -gt 20 ]]; then #無限ループ回避
+              break
+          fi
         done
         mo=${MM[@]}
-        echo '{"items":['$mo']}' | "$PARSER" .
+        echo '{"items":['$mo']}' | "$PARSER" -r -R .
       else 
         numForSubtitle=83
         cnt2="$(echo "$myQuery" | wc -m | bc)"
         startForSubtitle=0
         if [[ $cnt2 -gt $numForSubtitle ]]; then 
+          k=0
           while [ 1 ]
           do
+            k=$((k+1))
             cnt2=`expr $cnt2 - $numForSubtitle`
             if [[ $cnt2 -gt 0 ]]; then
               endend=$numForSubtitle
@@ -199,12 +206,15 @@ else
             if [[ $cnt2 -lt 0 ]]; then
               break
             fi
+            if [[ $k -gt 20 ]]; then #無限ループ回避
+              break
+            fi
           done
           mo=${MM[@]}
-          echo '{"items":['$mo']}' | "$PARSER" .
+          echo '{"items":['$mo']}' | "$PARSER" -r -R .
         else
           a='{"title":"'$sts'","arg":"'$sts1'","subtitle":"'$myQuery'"}'
-          echo '{"items":['$a']}' | "$PARSER" .
+          echo '{"items":['$a']}' | "$PARSER" -r -R .
         fi
       fi
     else
@@ -214,9 +224,11 @@ else
         start=0
         MM=()
         u=-1
+        k=0
         while [ 1 ]
         do
           u=$((u+1))
+          k=$((k+1))
           cnt1=`expr $cnt1 - $numForTitle`
           if [[ $cnt1 -gt 0 ]]; then
             endend=$numForTitle
@@ -253,13 +265,19 @@ else
           if [[ $cnt1 -lt 0 ]]; then
             break
           fi
+          if [[ $k -gt 20 ]]; then #無限ループ回避
+              break
+          fi
         done
         mo=${MM[@]}
-        echo '{"items":['$mo']}' | "$PARSER" .
+        echo '{"items":['$mo']}' | "$PARSER" -r -R .
       else
         a='{"title":"'$sts'","arg":"'$sts1'","subtitle":"'$myQuery'"}'
-        echo '{"items":['$a']}' | "$PARSER" .
+        echo '{"items":['$a']}' | "$PARSER" -r -R .
       fi
     fi
+  else
+  a='{"title":"'$sts'","arg":"'$sts1'","subtitle":"'$myQuery'"}'
+  echo '{"items":['$a']}' | "$PARSER" -r -R .
   fi
 fi
