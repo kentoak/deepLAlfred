@@ -40,6 +40,9 @@ def longman(spell):
                 if data.select(".Translation")[i].select(".TRAN"):
                     for j in range(len(data.select(".Translation")[i].select(".TRAN"))):
                         tmp += data.select(".Translation")[i].select(".TRAN")[j].get_text()
+                if data.select(".Translation")[i].select(".TRANEXPL"):
+                    for j in range(len(data.select(".Translation")[i].select(".TRANEXPL"))):
+                        tmp += data.select(".Translation")[i].select(".TRANEXPL")[j].get_text()
                 if tmp:
                     explanation_list.append(tmp)
     if data.select(".ljeEntry"):
