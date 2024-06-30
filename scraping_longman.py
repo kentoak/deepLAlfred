@@ -126,6 +126,10 @@ def main(spell):
                                 da=da.replace(PATTERNINFO,"")
                                 #print("tmp10",da)
                 #print("tmp1",da)
+            if data.select_one(".lejEntry").select_one(".Wordclass").select_one(".Usebox"):
+                usebox=data.select_one(".lejEntry").select_one(".Wordclass").select_one(".Usebox").get_text()
+                da=da.replace(usebox,"")
+                print("usebox",usebox)
             if data.select_one(".lejEntry").select_one(".Wordclass").select(".Tail"):
                 for k in data.select_one(".lejEntry").select_one(".Wordclass").select(".Tail"):
                     Tails=k.get_text()
